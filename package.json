@@ -1,0 +1,20 @@
+{
+  "name": "is219-crud-api",
+  "version": "1.0.0",
+  "private": true,
+  "repository": "https://github.com/jar243/is219-crud-api.git",
+  "author": "fake name <bruh@fam.com>",
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack -w"
+  },
+  "devDependencies": {
+    "nodemon-webpack-plugin": "^4.5.2",
+    "webpack": "^5.35.1",
+    "webpack-cli": "^4.6.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mysql2": "^2.2.5"
+  }
+}
