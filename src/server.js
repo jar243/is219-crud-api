@@ -6,8 +6,8 @@ const app = express()
 
 app.use(express.static("docs"))
 
-const apiRouter = require("./router")
-app.use("/api/trees", apiRouter)
+const treeRouter = require("./tree.router")
+app.use("/api/trees", treeRouter)
 
 app.listen(PORT, function () {
   console.log("Node server started on %s ...", PORT)
