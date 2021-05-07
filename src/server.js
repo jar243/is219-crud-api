@@ -16,6 +16,17 @@ const generateAuthToken = () => {
   return crypto.randomBytes(30).toString("hex")
 }
 
+const requireAuth = (req, res, next) => {
+  if (req.user) {
+    next()
+  } else {
+    res.render("login", {
+      message: "Please login to continue",
+      messageClass: "alert-danger",
+    })
+  }
+}
+
 const authTokens = {}
 const users = [
   {
@@ -32,8 +43,12 @@ const PORT = process.env.SERVER_PORT || 8080
 const app = express()
 
 app.use(bodyParser.urlencoded({ extended: true }))
-
 app.use(cookieParser())
+app.use((req, res, next) => {
+  const authToken = req.cookies["AuthToken"]
+  req.user = authTokens[authToken]
+  next()
+})
 
 app.engine(
   "hbs",
@@ -119,6 +134,12 @@ app.post("/login", (req, res) => {
   authTokens[authToken] = user
   res.cookie("AuthToken", authToken)
   res.redirect("/protected")
+})
+
+// PROTECTED PAGE WITH MIDDLEWARE
+
+app.get("/protected", requireAuth, (req, res) => {
+  res.render("protected")
 })
 
 // START SERVER
