@@ -1,5 +1,5 @@
-<div class="row justify-content-md-center" style="margin-top: 100px">
-  <div class="col-md-6">
+<div class="row justify-content-md-center mt-3">
+  <div class="col-md-4">
 
     {{#if message}}
     <div class="alert {{messageClass}}" role="alert">
@@ -7,16 +7,18 @@
     </div>
     {{/if}}
 
+    <h1>Login</h1>
+
     <form method="POST" action="/login">
       <div class="form-group">
-        <label for="emailInput">Email address</label>
-        <input name="email" type="email" class="form-control" id="emailInput" placeholder="Enter email">
+        <label for="usernameInput">Username</label>
+        <input name="username" class="form-control" id="usernameInput">
       </div>
       <div class="form-group">
         <label for="passwordInput">Password</label>
-        <input name="password" type="password" class="form-control" id="passwordInput" placeholder="Password">
+        <input name="password" type="password" class="form-control" id="passwordInput">
       </div>
-      <button type="submit" class="btn btn-primary">Login</button>
+      <button type="submit" class="btn btn-primary mt-3">Login</button>
     </form>
 
   </div>
