@@ -3,6 +3,7 @@ const exphbs = require("express-handlebars")
 const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser")
 const crypto = require("crypto")
+const jwt = require("jsonwebtoken")
 
 // AUTH-RELATED FUNCS AND VARS
 
@@ -12,25 +13,19 @@ const getHashedPassword = (password) => {
   return hash
 }
 
-const generateAuthToken = () => {
-  return crypto.randomBytes(30).toString("hex")
-}
-
 const requireAuth = (req, res, next) => {
   if (req.user) {
     next()
   } else {
-    res.render("login", {
-      message: "Please login to continue",
-      messageClass: "alert-danger",
-    })
+    res.send("You must be authenticated to perform this action")
   }
 }
 
-const authTokens = {}
+const accessTokenSecret = "youraccesstokensecret"
+const accessTokens = {}
 const users = [
   {
-    username: "johndoe",
+    username: "johnrezk",
     // This is the SHA256 hash for value of `password`
     password: "XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=",
   },
@@ -42,11 +37,11 @@ const PORT = process.env.SERVER_PORT || 8080
 
 const app = express()
 
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 app.use(cookieParser())
 app.use((req, res, next) => {
-  const authToken = req.cookies["AuthToken"]
-  req.user = authTokens[authToken]
+  const accessToken = req.cookies["AccessToken"]
+  req.user = accessTokens[accessToken]
   next()
 })
 
@@ -80,18 +75,12 @@ app.post("/register", (req, res) => {
   const { username, password, confirmPassword } = req.body
 
   if (password !== confirmPassword) {
-    res.render("register", {
-      message: "Password does not match.",
-      messageClass: "alert-danger",
-    })
+    res.send("Password does not match")
     return
   }
 
   if (users.find((user) => user.username === username)) {
-    res.render("register", {
-      message: "Username already in use.",
-      messageClass: "alert-danger",
-    })
+    res.send("Username already in use")
     return
   }
 
@@ -102,10 +91,7 @@ app.post("/register", (req, res) => {
     password: hashedPassword,
   })
 
-  res.render("login", {
-    message: "Registration Complete. Please login to continue.",
-    messageClass: "alert-success",
-  })
+  res.json({ username })
 })
 
 // LOGIN CODE
@@ -123,17 +109,14 @@ app.post("/login", (req, res) => {
   })
 
   if (!user) {
-    res.render("login", {
-      message: "Invalid username or password",
-      messageClass: "alert-danger",
-    })
+    res.send("Invalid username or password")
     return
   }
 
-  const authToken = generateAuthToken()
-  authTokens[authToken] = user
-  res.cookie("AuthToken", authToken)
-  res.redirect("/protected")
+  const accessToken = jwt.sign(user.username, accessTokenSecret)
+  accessTokens[accessToken] = user
+  res.cookie("AccessToken", accessToken)
+  res.json({ accessToken })
 })
 
 // PROTECTED PAGE WITH MIDDLEWARE
