@@ -1,4 +1,4 @@
-# is219-basic-auth
+# is219-jwt-auth
 
 By John Rezk
 
