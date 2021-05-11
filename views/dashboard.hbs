@@ -35,16 +35,36 @@
       })
     })
 
+    $("#editTreeBtn").click(function () {
+      $("#error").hide()
+
+      var treeId = $("#editId").val()
+
+      var jsonStr = JSON.stringify({
+        girth: parseFloat($("#editGirth").val()),
+        height: parseFloat($("#editHeight").val()),
+        volume: parseFloat($("#editVolume").val()),
+      })
+
+      $.ajax({
+        'url': ['api/trees/', treeId].join(''),
+        'type': 'PUT',
+        'contentType': "application/json; charset=utf-8",
+        'dataType': 'json',
+        'data': jsonStr,
+        'success': function (res) {
+          location.reload()
+        }
+      }).fail(function (a, b, c) {
+        $("#error").show()
+        $("#error").text(a.responseText)
+      })
+    })
+
     $("#deleteTreeBtn").click(function () {
       $("#error").hide()
 
-      try {
-        var treeId = parseInt($("#deleteId").val())
-        if (treeId < 1) throw "Invalid ID"
-      } catch (err) {
-        $("#error").show()
-        $("#error").text("Invalid ID")
-      }
+      var treeId = $("#deleteId").val()
 
       $.ajax({
         'url': ['api/trees/', treeId].join(''),
@@ -89,6 +109,24 @@
   </div>
   <div class="col">
     <button id="newTreeBtn" class="btn btn-success">Add New Tree</button>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col">
+    <input id="editId" type="number" class="form-control" placeholder="Tree ID">
+  </div>
+  <div class="col">
+    <input id="editGirth" type="number" class="form-control" placeholder="Girth">
+  </div>
+  <div class="col">
+    <input id="editHeight" type="number" class="form-control" placeholder="Height">
+  </div>
+  <div class="col">
+    <input id="editVolume" type="number" class="form-control" placeholder="Volume">
+  </div>
+  <div class="col">
+    <button id="editTreeBtn" class="btn btn-primary">Edit Existing Tree</button>
   </div>
 </div>
 
