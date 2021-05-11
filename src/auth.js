@@ -1,5 +1,4 @@
 const express = require("express")
-const router = express.Router()
 const passport = require("passport")
 const querystring = require("querystring")
 
@@ -18,7 +17,7 @@ authRouter.get(
 )
 
 authRouter.get("/callback", (req, res, next) => {
-  passport.authenticate("auth0", (err, user, info) => {
+  passport.authenticate("auth0", (err, user) => {
     if (err) {
       return next(err)
     }
