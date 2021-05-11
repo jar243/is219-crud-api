@@ -1,7 +1,6 @@
 const express = require("express")
 const cors = require("cors")
 const exphbs = require("express-handlebars")
-const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser")
 const expressSession = require("express-session")
 const passport = require("passport")
@@ -33,14 +32,6 @@ const strategy = new Auth0Strategy(
     callbackURL: process.env.AUTH0_CALLBACK_URL,
   },
   function (accessToken, refreshToken, extraParams, profile, done) {
-    /**
-     * Access tokens are used to authorize users to an API
-     * (resource server)
-     * accessToken is the token to call the Auth0 API
-     * or a secured third-party API
-     * extraParams.id_token has the JSON Web Token
-     * profile has all the information from the user
-     */
     return done(null, profile)
   }
 )
@@ -72,13 +63,23 @@ passport.deserializeUser((user, done) => {
   done(null, user)
 })
 
+const authRouter = require("./auth")
+app.use("/", authRouter)
+
+// SECURED MIDDLEWARE FUNC
+
+const secured = (req, res, next) => {
+  if (req.user) {
+    return next()
+  }
+  req.session.returnTo = req.originalUrl
+  res.redirect("/login")
+}
+
 // API ROUTERS
 
 const treeRouter = require("./tree.router")
-app.use("/api/trees", treeRouter)
-
-const authRouter = require("./auth")
-app.use("/", authRouter)
+app.use("/api/trees", secured, treeRouter)
 
 // HOME PAGE
 
@@ -88,7 +89,7 @@ app.get("/", function (req, res) {
 
 // PROTECTED PAGE WITH MIDDLEWARE
 
-app.get("/dashboard", (req, res) => {
+app.get("/dashboard", secured, (req, res) => {
   res.render("dashboard")
 })
 
