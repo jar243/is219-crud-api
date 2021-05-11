@@ -1,4 +1,5 @@
 const express = require("express")
+const cors = require("cors")
 const exphbs = require("express-handlebars")
 const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser")
@@ -30,6 +31,7 @@ const PORT = process.env.SERVER_PORT || 8080
 
 const app = express()
 
+app.use(cors())
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use((req, res, next) => {
@@ -75,8 +77,8 @@ app.get("/login", (req, res) => {
 
 // PROTECTED PAGE WITH MIDDLEWARE
 
-app.get("/protected", requireAuth, (req, res) => {
-  res.render("protected")
+app.get("/dashboard", requireAuth, (req, res) => {
+  res.render("dashboard")
 })
 
 // START SERVER
