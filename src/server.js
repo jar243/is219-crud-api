@@ -2,16 +2,8 @@ const express = require("express")
 const exphbs = require("express-handlebars")
 const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser")
-const crypto = require("crypto")
-const jwt = require("jsonwebtoken")
 
-// AUTH-RELATED FUNCS AND VARS
-
-const getHashedPassword = (password) => {
-  const sha256 = crypto.createHash("sha256")
-  const hash = sha256.update(password).digest("base64")
-  return hash
-}
+// MIDDLEWARE
 
 const requireAuth = (req, res, next) => {
   if (req.user) {
@@ -21,7 +13,8 @@ const requireAuth = (req, res, next) => {
   }
 }
 
-const accessTokenSecret = "youraccesstokensecret"
+// CONSTANTS
+
 const accessTokens = {}
 const users = [
   {
@@ -54,10 +47,13 @@ app.engine(
 
 app.set("view engine", "hbs")
 
-// BACKEND API
+// API ROUTERS
 
 const treeRouter = require("./tree.router")
-app.use("/api/trees", treeRouter)
+app.use("/api/trees", requireAuth, treeRouter)
+
+const authRouter = require("./auth")(users, accessTokens)
+app.use("/api/auth", authRouter)
 
 // HOME PAGE
 
@@ -71,52 +67,10 @@ app.get("/register", (req, res) => {
   res.render("register")
 })
 
-app.post("/register", (req, res) => {
-  const { username, password, confirmPassword } = req.body
-
-  if (password !== confirmPassword) {
-    res.send("Password does not match")
-    return
-  }
-
-  if (users.find((user) => user.username === username)) {
-    res.send("Username already in use")
-    return
-  }
-
-  const hashedPassword = getHashedPassword(password)
-
-  users.push({
-    username,
-    password: hashedPassword,
-  })
-
-  res.json({ username })
-})
-
 // LOGIN CODE
 
 app.get("/login", (req, res) => {
   res.render("login")
-})
-
-app.post("/login", (req, res) => {
-  const { username, password } = req.body
-  const hashedPassword = getHashedPassword(password)
-
-  const user = users.find((u) => {
-    return u.username === username && hashedPassword === u.password
-  })
-
-  if (!user) {
-    res.send("Invalid username or password")
-    return
-  }
-
-  const accessToken = jwt.sign(user.username, accessTokenSecret)
-  accessTokens[accessToken] = user
-  res.cookie("AccessToken", accessToken)
-  res.json({ accessToken })
 })
 
 // PROTECTED PAGE WITH MIDDLEWARE
