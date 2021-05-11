@@ -6,14 +6,13 @@ function getQueryVals(request, queryNames) {
 
   for (let i = 0; i < queryNames.length; i++) {
     let name = queryNames[i]
-    let val = request.query[name]
-    if (typeof val === "undefined") {
+    if (typeof request.body[name] === "undefined") {
       throw new Error("Missing query value: " + name)
     }
+    let val = request.body[name]
     if (isNaN(val)) {
       throw new Error("Query value is not a number: " + name)
     }
-
     inputVals.push(val)
   }
 
@@ -45,7 +44,11 @@ router.post("/", async (req, res) => {
   const queryNames = ["girth", "height", "volume"]
   const vals = getQueryVals(req, queryNames)
   const tree = new Tree(vals[0], vals[1], vals[2])
-  res.json({ data: await tree.create() })
+  try {
+    res.json({ data: await tree.create() })
+  } catch (err) {
+    res.send("Invalid data submitted")
+  }
 })
 
 router.put("/:treeId", async (req, res) => {
@@ -62,7 +65,7 @@ router.put("/:treeId", async (req, res) => {
 
   const success = await Tree.update(id, tree)
   if (success) {
-    res.status(200).send("Success")
+    res.status(200).json({ message: "Success" })
   } else {
     res.status(404).send("Nothing updated")
   }
@@ -76,7 +79,7 @@ router.delete("/:treeId", async (req, res) => {
   }
   const success = await Tree.delete(id)
   if (success) {
-    res.status(200).send("Success")
+    res.status(200).json({ message: "Success" })
   } else {
     res.status(404).send("Nothing deleted")
   }
