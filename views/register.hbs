@@ -1,32 +1,59 @@
+<script type="text/javascript">
+
+  $(document).ready(function () {
+    $("#error").hide()
+
+    $("#registerBtn").click(function () {
+      $("#error").hide()
+
+      var jsonStr = JSON.stringify({
+        username: $("#username").val(),
+        password: $("#password").val(),
+        confirmPassword: $("#confirmPassword").val()
+      })
+
+      $.ajax({
+        'url': 'api/auth/register',
+        'type': 'POST',
+        'contentType': "application/json; charset=utf-8",
+        'dataType': 'json',
+        'data': jsonStr,
+        'success': function (res) {
+          $(location).attr("href", "dashboard/");
+        }
+      }).fail(function (a, b, c) {
+        $("#error").show()
+        $("#error").text(a.responseText)
+      })
+    })
+  })
+
+</script>
+
 <div class="row justify-content-md-center mt-3">
   <div class="col-md-4">
 
-    {{#if message}}
-    <div class="alert {{messageClass}}" role="alert">
-      {{message}}
-    </div>
-    {{/if}}
+    <div id="error" class="alert alert-danger" role="alert">Error</div>
 
     <h1>Register</h1>
 
-    <form method="POST" action="/register">
-      <div class="form-group">
-        <label for="usernameInput">Username</label>
-        <input name="username" type="text" class="form-control" id="usernameInput">
-      </div>
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input name="username" type="text" class="form-control" id="username">
+    </div>
 
-      <div class="form-group">
-        <label for="passwordInput">Password</label>
-        <input name="password" type="password" class="form-control" id="passwordInput">
-      </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input name="password" type="password" class="form-control" id="password">
+    </div>
 
-      <div class="form-group">
-        <label for="confirmPasswordInput">Confirm Password</label>
-        <input name="confirmPassword" type="password" class="form-control" id="confirmPasswordInput"
-          placeholder="Re-enter password">
-      </div>
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password</label>
+      <input name="confirmPassword" type="password" class="form-control" id="confirmPassword"
+        placeholder="Re-enter password">
+    </div>
 
-      <button type="submit" class="btn btn-primary mt-3">Login</button>
-    </form>
+    <button id="registerBtn" class="btn btn-primary mt-3">Login</button>
+
   </div>
 </div>

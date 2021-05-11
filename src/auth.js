@@ -28,12 +28,17 @@ module.exports = (users, accessTokens) => {
 
     const hashedPassword = getHashedPassword(password)
 
-    users.push({
+    const user = {
       username,
       password: hashedPassword,
-    })
+    }
 
-    res.json({ username })
+    users.push(user)
+
+    const accessToken = jwt.sign(user.username, accessTokenSecret)
+    accessTokens[accessToken] = user
+    res.cookie("AccessToken", accessToken)
+    res.json({ accessToken })
   })
 
   authRouter.post("/login", (req, res) => {
