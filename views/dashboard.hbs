@@ -10,6 +10,29 @@
         { data: "volume" },
       ],
     })
+    $("#newTreeBtn").click(function () {
+      $("#error").hide()
+
+      var jsonStr = JSON.stringify({
+        girth: parseFloat($("#newGirth").val()),
+        height: parseFloat($("#newHeight").val()),
+        volume: parseFloat($("#newVolume").val()),
+      })
+
+      $.ajax({
+        'url': 'api/trees',
+        'type': 'POST',
+        'contentType': "application/json; charset=utf-8",
+        'dataType': 'json',
+        'data': jsonStr,
+        'success': function (res) {
+          console.log('added new tree')
+        }
+      }).fail(function (a, b, c) {
+        $("#error").show()
+        $("#error").text(a.responseText)
+      })
+    })
   })
 </script>
 
