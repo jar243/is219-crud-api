@@ -66,6 +66,11 @@ passport.deserializeUser((user, done) => {
 const authRouter = require("./auth")
 app.use("/", authRouter)
 
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.isAuthenticated()
+  next()
+})
+
 // SECURED MIDDLEWARE FUNC
 
 const secured = (req, res, next) => {
