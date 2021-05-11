@@ -1,64 +1,56 @@
 const express = require("express")
-const crypto = require("crypto")
-const jwt = require("jsonwebtoken")
+const router = express.Router()
+const passport = require("passport")
+const querystring = require("querystring")
 
-const accessTokenSecret = "youraccesstokensecret"
+require("dotenv").config()
 
-const getHashedPassword = (password) => {
-  const sha256 = crypto.createHash("sha256")
-  const hash = sha256.update(password).digest("base64")
-  return hash
-}
+const authRouter = express.Router()
 
-module.exports = (users, accessTokens) => {
-  const authRouter = express.Router()
+authRouter.get(
+  "/login",
+  passport.authenticate("auth0", {
+    scope: "openid email profile",
+  }),
+  (req, res) => {
+    res.redirect("/")
+  }
+)
 
-  authRouter.post("/register", (req, res) => {
-    const { username, password, confirmPassword } = req.body
-
-    if (password !== confirmPassword) {
-      res.send("Password does not match")
-      return
+authRouter.get("/callback", (req, res, next) => {
+  passport.authenticate("auth0", (err, user, info) => {
+    if (err) {
+      return next(err)
     }
-
-    if (users.find((user) => user.username === username)) {
-      res.send("Username already in use")
-      return
-    }
-
-    const hashedPassword = getHashedPassword(password)
-
-    const user = {
-      username,
-      password: hashedPassword,
-    }
-
-    users.push(user)
-
-    const accessToken = jwt.sign(user.username, accessTokenSecret)
-    accessTokens[accessToken] = user
-    res.cookie("AccessToken", accessToken)
-    res.json({ accessToken })
-  })
-
-  authRouter.post("/login", (req, res) => {
-    const { username, password } = req.body
-    const hashedPassword = getHashedPassword(password)
-
-    const user = users.find((u) => {
-      return u.username === username && hashedPassword === u.password
-    })
-
     if (!user) {
-      res.send("Invalid username or password")
-      return
+      return res.redirect("/login")
     }
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err)
+      }
+      const returnTo = req.session.returnTo
+      delete req.session.returnTo
+      res.redirect(returnTo || "/")
+    })
+  })(req, res, next)
+})
 
-    const accessToken = jwt.sign(user.username, accessTokenSecret)
-    accessTokens[accessToken] = user
-    res.cookie("AccessToken", accessToken)
-    res.json({ accessToken })
+authRouter.get("/logout", (req, res) => {
+  req.logOut()
+
+  let returnTo = req.protocol + "://" + req.hostname
+  const port = req.connection.localPort
+
+  const logoutURL = new URL(`https://${process.env.AUTH0_DOMAIN}/v2/logout`)
+
+  const searchString = querystring.stringify({
+    client_id: process.env.AUTH0_CLIENT_ID,
+    returnTo: returnTo,
   })
+  logoutURL.search = searchString
 
-  return authRouter
-}
+  res.redirect(logoutURL)
+})
+
+module.exports = authRouter
