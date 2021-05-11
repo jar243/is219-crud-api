@@ -2,4 +2,4 @@
 
 By John Rezk
 
-![Example](./screenshots/jwt-auth.gif)
+![Example](./screenshots/jwt-auth.png)
