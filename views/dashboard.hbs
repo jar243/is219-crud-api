@@ -1,3 +1,47 @@
-<div class="text-center mt-5">
-  <h1>LOGIN SUCCESSFUL</h1>
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#error").hide()
+    $("#treeTable").DataTable({
+      ajax: "http://localhost:8080/api/trees",
+      columns: [
+        { data: "id" },
+        { data: "girth" },
+        { data: "height" },
+        { data: "volume" },
+      ],
+    })
+  })
+</script>
+
+<div id="error" class="alert alert-danger" role="alert">Error</div>
+
+<div class="border p-4 mb-4">
+  <h4 class="mb-2 text-center">List of Tree Data</h4>
+  <table id="treeTable" class="display">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Girth (in)</th>
+        <th>Height (ft)</th>
+        <th>Volume (ft^3)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<h2></h2>
+<div class="row">
+  <div class="col">
+    <input id="newGirth" type="number" class="form-control" placeholder="Girth">
+  </div>
+  <div class="col">
+    <input id="newHeight" type="number" class="form-control" placeholder="Height">
+  </div>
+  <div class="col">
+    <input id="newVolume" type="number" class="form-control" placeholder="Volume">
+  </div>
+  <div class="col">
+    <button id="newTreeBtn" class="btn btn-primary">Add New Tree</button>
+  </div>
 </div>
