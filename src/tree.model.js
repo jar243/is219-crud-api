@@ -27,7 +27,7 @@ class Tree {
   }
 
   async create() {
-    const [rows, fields] = await pool.query(
+    const [rows] = await pool.query(
       "INSERT INTO trees SET ?;",
       this.toObject()
     )
@@ -36,7 +36,7 @@ class Tree {
   }
 
   static async getAll() {
-    const [rows, fields] = await pool.query("SELECT * FROM trees")
+    const [rows] = await pool.query("SELECT * FROM trees")
     const data = []
     for (let i in rows) {
       let row = rows[i]
@@ -48,7 +48,7 @@ class Tree {
   }
 
   static async findById(id) {
-    const [rows, fields] = await pool.query(
+    const [rows] = await pool.query(
       "SELECT * FROM trees WHERE id = ?",
       id
     )
