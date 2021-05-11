@@ -1,5 +1,5 @@
-# is219-jwt-auth
+# is219-auth0-passport
 
 By John Rezk
 
-![Example](./screenshots/jwt-auth.png)
+![Example](./screenshots/auth0-passport.gif)
