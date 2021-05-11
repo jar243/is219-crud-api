@@ -1,4 +1,5 @@
 <script type="text/javascript">
+
   $(document).ready(function () {
     $("#error").hide()
     $("#treeTable").DataTable({
@@ -26,7 +27,30 @@
         'dataType': 'json',
         'data': jsonStr,
         'success': function (res) {
-          console.log('added new tree')
+          location.reload()
+        }
+      }).fail(function (a, b, c) {
+        $("#error").show()
+        $("#error").text(a.responseText)
+      })
+    })
+
+    $("#deleteTreeBtn").click(function () {
+      $("#error").hide()
+
+      try {
+        var treeId = parseInt($("#deleteId").val())
+        if (treeId < 1) throw "Invalid ID"
+      } catch (err) {
+        $("#error").show()
+        $("#error").text("Invalid ID")
+      }
+
+      $.ajax({
+        'url': ['api/trees/', treeId].join(''),
+        'type': 'DELETE',
+        'success': function (res) {
+          location.reload()
         }
       }).fail(function (a, b, c) {
         $("#error").show()
@@ -53,8 +77,7 @@
   </table>
 </div>
 
-<h2></h2>
-<div class="row">
+<div class="row mb-4">
   <div class="col">
     <input id="newGirth" type="number" class="form-control" placeholder="Girth">
   </div>
@@ -65,6 +88,15 @@
     <input id="newVolume" type="number" class="form-control" placeholder="Volume">
   </div>
   <div class="col">
-    <button id="newTreeBtn" class="btn btn-primary">Add New Tree</button>
+    <button id="newTreeBtn" class="btn btn-success">Add New Tree</button>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <input id="deleteId" type="number" class="form-control" placeholder="Tree ID">
+  </div>
+  <div class="col">
+    <button id="deleteTreeBtn" class="btn btn-danger">Delete Tree</button>
   </div>
 </div>
